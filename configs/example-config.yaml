@@ -1,0 +1,26 @@
+# InstanceMaker and Common Parameters
+do_labelling: True
+catalog_file: data/catalog.csv
+pred_dir: data/predictions
+image_dir: data/images
+label_dir: tmp/labels
+polygon_dir: tmp/polygons
+prediction_filename_template: "tile<tile>_<year>-<date>_class1.tif"
+labeled_filename_template: "tile<tile>_<year>-<date>_labeled.tif"
+polygon_filename_template: "tile<tile>_<year>-<date>_polygons.geojson"
+threshold: 75
+kernel: [[0, 1, 0],
+        [1, 1, 1],
+        [0, 1, 0]]
+erosion_iterations: 4
+dilation_iterations: 3
+simplify: 0.00003
+num_workers: 2
+log_file: None #logs/instancemaker.log
+
+# MergeFields parameters
+# csv file that specifies the tiles to merge, 
+# set to null if all tiles are to be merged
+tile_geojson: data/zambia_tiles.geojson # geojson containing tile layout
+merged_polygon_dir: tmp/merged_polygons/ # directory to save the merged polygons
+merged_parquet_file: tmp/merged_polygons.parquet

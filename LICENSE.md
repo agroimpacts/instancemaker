@@ -1,0 +1,1 @@
+Usage of the data provided here (imagery and derived score maps and vectorized field boundaries) is governed by Planet's [participant license agreement for the NICI contract](https://assets.planet.com/docs/Planet_ParticipantLicenseAgreement_NICFI.pdf). The code is available for use  under an [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0).
