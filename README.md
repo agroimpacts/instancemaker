@@ -9,7 +9,7 @@
 
 Although developed for this purpose, `instancemaker` should also be applicable to the outputs of other segmentation tasks.
 
-The tools developed in the package are grouped into two classes: `MakeInstances` and `MergeInstances`. The former provides the methods for converting score maps into vectorized instances, including the optional but recommended intermediate step of labeling the score maps and performing erosion and dilation operations to separate narrowly joined instance, and the ability to filter out small objects. `MergeInstances` enables cross-boundary polygon merging and the combining the post-merging results into a single geoparquet file.  
+The tools developed in the package are grouped into two classes: `MakeInstances` and `MergeInstances`. The former provides the methods for converting score maps into vectorized instances, including the optional but recommended intermediate step of labeling the score maps and performing erosion and dilation operations to separate narrowly joined instance, and the ability to filter out small objects. `MergeInstances` enables cross-boundary polygon merging (using an approach developed by [Wanjing Li](https://github.com/wanjing-1116)) and the combining the post-merging results into a single geoparquet file.  
 
 Functions can be run from the command line, or from a notebook (see the [demo notebook](notebooks/demo.ipynb)).
 
