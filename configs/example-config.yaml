@@ -1,26 +1,31 @@
 # InstanceMaker and Common Parameters
-do_labelling: True
-catalog_file: data/catalog.csv
-pred_dir: data/predictions
-image_dir: data/images
-label_dir: tmp/labels
-polygon_dir: tmp/polygons
+do_labelling: True  # Label (and optionally erode/dilate) prediction first?
+catalog_file: data/catalog.csv  # name and path to your input csv catalog
+pred_dir: data/predictions  # folder containing model predictions/score maps
+image_dir: data/images  # optional folder w/satellite images for visualization
+label_dir: tmp/labels  # output folder for writing labeled images
+polygon_dir: tmp/polygons  # output folder for polygonized results
+
+# templates defining naming patterns for: 
+# 1) prediction/score map images 
+# 2) intermediate labeled images
+# 3) polygonized (geojson) outputs 
 prediction_filename_template: "tile<tile>_<year>-<date>_class1.tif"
 labeled_filename_template: "tile<tile>_<year>-<date>_labeled.tif"
 polygon_filename_template: "tile<tile>_<year>-<date>_polygons.geojson"
-threshold: 75
-kernel: [[0, 1, 0],
+threshold: 75  # threshold for hardening score maps
+kernel: [[0, 1, 0],  # image morphology filter
         [1, 1, 1],
         [0, 1, 0]]
-erosion_iterations: 4
-dilation_iterations: 3
-simplify: 0.00003
-num_workers: 2
-log_file: None #logs/instancemaker.log
+erosion_iterations: 4 # number of morphological erosion iterations
+dilation_iterations: 3  # number of morphological dilation iterations
+simplify: 0.00003  # tolerance for polygon simplification
+num_workers: 2  # number of parallel workers
+log_file: None #logs/instancemaker.log  # log file
 
 # MergeFields parameters
 # csv file that specifies the tiles to merge, 
 # set to null if all tiles are to be merged
 tile_geojson: data/zambia_tiles.geojson # geojson containing tile layout
 merged_polygon_dir: tmp/merged_polygons/ # directory to save the merged polygons
-merged_parquet_file: tmp/merged_polygons.parquet
+merged_parquet_file: tmp/merged_polygons.parquet # output geoparquet

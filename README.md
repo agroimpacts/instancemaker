@@ -31,6 +31,16 @@ cd instancemaker
 pip install -e .
 ```
 
+## Input requirements
+Use of the methods here requires a somewhat inflexibly structured CSV catalog file, a demo of which is provided as an example. This catalog should contains the following variables:
+
+- *tile*: Identifier for cell/tile in a reference grid that defines the boundaries of model prediction tiles to process into polygons and then merge into a single output
+- *year*: Calendar year represented by the prediction (used in output naming)
+- *date*: Month or month-day of the prediction (julian days probably works) (used in output naming)
+- *prediction*: Name of the prediction image to process
+
+These are the minimum set. A column *image* can also be added, containing the name of a satellite image that can be added as a backdrop for visualizing output polygons witihin a `leafmap`-based viewing function. Note: "image" is also an argument for the `MakeInstances.polygonize()` function, named so because it can either take a labeled or prediction (score map) image as input.  
+
 ## Command Line Interface
 This is the preferred way to use `instancemaker`, which is designed for large-scale map-making. The CLI provides logging and parallelization. 
 
