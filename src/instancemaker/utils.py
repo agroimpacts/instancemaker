@@ -70,6 +70,98 @@ def get_filename(name_template, tile, year, date, suffix=None):
     
     return file_name
 
+def validate_filename_pattern(filename, expected_pattern):
+    """
+    Validate if a filename matches the expected pattern.
+    
+    Parameters
+    ----------
+    filename : str
+        The filename to validate.
+    expected_pattern : str
+        The expected pattern template.
+        
+    Returns
+    -------
+    bool
+        True if filename matches pattern, False otherwise.
+    """
+    # Convert template pattern to regex pattern
+    regex_pattern = expected_pattern.replace('<tile>', r'\d+')
+    regex_pattern = regex_pattern.replace('<year>', r'\d{4}')
+    regex_pattern = regex_pattern.replace('<date>', r'\d{2}')
+    regex_pattern = regex_pattern.replace('.', r'\.')  # Escape dots
+    
+    # Add start and end anchors
+    regex_pattern = f'^{regex_pattern}$'
+    
+    return bool(re.match(regex_pattern, filename))
+
+def analyze_filename_mismatch(filename, expected_pattern, tile, year, date):
+    """
+    Analyze why a filename doesn't match the expected pattern and provide detailed error message.
+    
+    Parameters
+    ----------
+    filename : str
+        The actual filename.
+    expected_pattern : str
+        The expected pattern template.
+    tile : int
+        The tile number.
+    year : str
+        The year.
+    date : str
+        The date.
+        
+    Returns
+    -------
+    str
+        Detailed error message explaining the mismatch.
+    """
+    expected_filename = get_filename(expected_pattern, tile, year, date)
+    
+    # Basic comparison
+    if filename == expected_filename:
+        return "Filename matches expected pattern"
+    
+    # Analyze differences
+    differences = []
+    
+    # Check if filename starts with expected prefix
+    if not filename.startswith(expected_filename.split('_')[0]):
+        differences.append(f"Expected to start with '{expected_filename.split('_')[0]}', but got '{filename.split('_')[0] if '_' in filename else filename}'")
+    
+    # Check if filename ends with expected suffix
+    if not filename.endswith(expected_filename.split('_')[-1]):
+        differences.append(f"Expected to end with '{expected_filename.split('_')[-1]}', but got '{filename.split('_')[-1] if '_' in filename else filename}'")
+    
+    # Check for missing or extra parts
+    expected_parts = expected_filename.split('_')
+    actual_parts = filename.split('_')
+    
+    if len(expected_parts) != len(actual_parts):
+        differences.append(f"Expected {len(expected_parts)} parts separated by '_', but got {len(actual_parts)} parts")
+    
+    # Check specific parts
+    if len(expected_parts) >= 2 and len(actual_parts) >= 2:
+        # Check tile part
+        if expected_parts[0] != actual_parts[0]:
+            differences.append(f"Expected tile part '{expected_parts[0]}', but got '{actual_parts[0]}'")
+        
+        # Check date part
+        if len(expected_parts) >= 3 and len(actual_parts) >= 3:
+            if expected_parts[1] != actual_parts[1]:
+                differences.append(f"Expected date part '{expected_parts[1]}', but got '{actual_parts[1]}'")
+    
+    if not differences:
+        differences.append(f"Filename structure is different from expected pattern")
+    
+    error_msg = f"Filename '{filename}' does not match expected pattern '{expected_filename}' for tile {tile}:\n"
+    error_msg += "\n".join([f"  - {diff}" for diff in differences])
+    
+    return error_msg
+
 def check_dir(dirs):
     """
     Check if output directory exists, and create it if it does not.
