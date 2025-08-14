@@ -6,7 +6,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 import numpy as np
 import geopandas as gpd
 import glob
-
+from tqdm import tqdm
 import logging
 
 
@@ -59,17 +59,19 @@ def compute_shape_metrics_parallel(merged_polygon_dir: str, attributed_merged_po
             future_to_path[future] = (in_path, out_path)
 
         # Collect results
-        for future in as_completed(future_to_path):
-            in_path, expected_out_path = future_to_path[future]
-            try:
-                out_path, err, flag = future.result()
-                if flag:
-                    output_geojsons.append(out_path)
-                else:
-                    print(f"Error at: {in_path}, {err}")
-                    failures.append((out_path, err))
-            except Exception as exc:
-                print(f"Exception at: {in_path}, {exc}")
-                failures.append((expected_out_path, str(exc)))
+        with tqdm(total=len(input_geojsons), desc="Computing shape metrics") as pbar:
+            for future in as_completed(future_to_path):
+                in_path, expected_out_path = future_to_path[future]
+                try:
+                    out_path, err, flag = future.result()
+                    if flag:
+                        output_geojsons.append(out_path)
+                    else:
+                        print(f"Error at: {in_path}, {err}")
+                        failures.append((out_path, err))
+                except Exception as exc:
+                    print(f"Exception at: {in_path}, {exc}")
+                    failures.append((expected_out_path, str(exc)))
+                pbar.update(1)
 
     logging.info(f"success: {len(output_geojsons)}/{len(input_geojsons)}, failures: {len(failures)}/{len(input_geojsons)}")
