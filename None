@@ -1,5 +1,0 @@
-2025-08-14 01:04:16,223 [INFO] Running computeinstances command
-2025-08-14 01:04:19,586 [INFO] success: 9/9, failures: 0/9
-2025-08-14 01:04:19,806 [INFO] Converted 9 files to tmp/attributed_merged_polygons.parquet
-2025-08-14 01:04:19,806 [INFO] Total features: 4344
-2025-08-14 01:04:19,806 [INFO] Completed computeinstances command
