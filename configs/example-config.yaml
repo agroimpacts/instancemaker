@@ -29,3 +29,8 @@ log_file: None #logs/instancemaker.log  # log file
 tile_geojson: data/zambia_tiles.geojson # geojson containing tile layout
 merged_polygon_dir: tmp/merged_polygons/ # directory to save the merged polygons
 merged_parquet_file: tmp/merged_polygons.parquet # output geoparquet
+
+# ComputeInstances parameters
+attributed_merged_polygon_dir: tmp/attributed_merged_polygons/ # directory to save the attributed merged polygons
+attributed_merged_parquet_file: tmp/attributed_merged_polygons.parquet # output geoparquet
+area_crs: "ESRI:102022" # projection CRS for shape metrics

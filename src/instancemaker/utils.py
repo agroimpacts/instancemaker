@@ -7,6 +7,8 @@ import geopandas as gpd
 import leafmap.leafmap as leafmap
 import pandas as pd
 import glob
+import logging
+
 
 def convert_geojson_to_geoparquet(input_dir, output_file):
     """
@@ -36,8 +38,8 @@ def convert_geojson_to_geoparquet(input_dir, output_file):
     # Save as GeoParquet
     combined_gdf.to_parquet(output_file, index=False)
     
-    print(f"Converted {len(geojson_files)} files to {output_file}")
-    print(f"Total features: {len(combined_gdf)}")
+    logging.info(f"Converted {len(geojson_files)} files to {output_file}")
+    logging.info(f"Total features: {len(combined_gdf)}")
 
 def get_filename(name_template, tile, year, date, suffix=None):
     """

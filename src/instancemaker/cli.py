@@ -4,7 +4,7 @@ import click
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from instancemaker import MakeInstances, MergeInstances
+from instancemaker import MakeInstances, MergeInstances, compute_shape_metrics_parallel
 from instancemaker.utils import *
 import concurrent.futures
 from functools import partial
@@ -251,6 +251,57 @@ def mergeinstances(config, tile_geojson, polygon_dir, merged_polygon_dir,
         convert_geojson_to_geoparquet(mrgi.merged_polygon_dir,  
                                       merged_parquet_file)
     logging.info("Completed mergeinstances command")
+
+@cli.command()
+
+@click.option('--config', default='configs/example-config.yaml', type=str, 
+              help='Path to config file.')
+@click.option('--merged-polygon-dir', default=None, type=str, 
+              help='Directory for reading merged polygon files.')
+@click.option('--attributed-merged-polygon-dir', default=None, type=str, 
+              help='Output directory for writing attributed merged polygon files.')
+@click.option('--num-workers', default=None, type=int, 
+              help='Number of workers for parallelized processes.')
+@click.option('--attributed-merged-parquet-file', default=None, type=str, 
+              help='Output attributed geoparquet filename.')
+@click.option('--area-crs', default='ESRI:102022', type=str, help='CRS for projection.')
+@click.option('--log-file', default=None, type=str, help='Log file path.')
+
+def computeinstances(config, merged_polygon_dir, attributed_merged_polygon_dir, 
+                     num_workers, attributed_merged_parquet_file, area_crs, log_file):
+    """Run ComputeInstances methods (compute shape metrics on merged polygons)."""
+    # Load config file
+    with open(config, "r") as f:
+        config_data = yaml.safe_load(f)
+
+    # Determine log file: CLI arg takes precedence, else config, else None
+    log_file = get_config_value(log_file, config_data, 'log_file')
+    configure_logging(log_file=log_file)
+    logging.info("Running computeinstances command")
+
+    merged_polygon_dir = get_config_value(merged_polygon_dir, config_data, 
+                                          'merged_polygon_dir')
+    attributed_merged_polygon_dir = get_config_value(attributed_merged_polygon_dir, config_data, 
+                                                     'attributed_merged_polygon_dir')
+    num_workers = get_config_value(num_workers, config_data, 'num_workers')
+    area_crs = get_config_value(area_crs, config_data, 'area_crs')
+
+    attributed_merged_parquet_file = get_config_value(attributed_merged_parquet_file, config_data, 
+                                                      'attributed_merged_parquet_file')
+
+    check_dir([attributed_merged_polygon_dir])
+
+    # compute shape metrics
+    compute_shape_metrics_parallel(merged_polygon_dir, 
+                                   attributed_merged_polygon_dir, 
+                                   area_crs, 
+                                   num_workers)
+
+
+    if attributed_merged_parquet_file:
+        convert_geojson_to_geoparquet(attributed_merged_polygon_dir,  
+                                      attributed_merged_parquet_file)
+    logging.info("Completed computeinstances command")
 
 if __name__ == '__main__':
     cli()
