@@ -78,5 +78,5 @@ def compute_shape_metrics_parallel(
                     failures.append((expected_out_path, str(exc)))
                 pbar.update(1)
 
-    logging.info(f"success: {len(output_geojsons)}/{len(input_geojsons)}, "\ 
+    logging.info(f"success: {len(output_geojsons)}/{len(input_geojsons)}, "
                  f"failures: {len(failures)}/{len(input_geojsons)}")
