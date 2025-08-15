@@ -41,7 +41,11 @@ def attribute_shape_metrics(in_path: str, out_path: str, area_crs: str) -> None:
     out.to_file(out_path, driver="GeoJSON")
     return (str(out_path), None, True)
 
-def compute_shape_metrics_parallel(merged_polygon_dir: str, attributed_merged_polygon_dir: str, area_crs: str, num_workers: int) -> None:
+def compute_shape_metrics_parallel(
+    merged_polygon_dir: str, 
+    attributed_merged_polygon_dir: str, 
+    area_crs: str, num_workers: int
+) -> None:
     if isinstance(merged_polygon_dir, Path):
         merged_polygon_dir = str(merged_polygon_dir)
     if isinstance(attributed_merged_polygon_dir, Path):
@@ -74,4 +78,5 @@ def compute_shape_metrics_parallel(merged_polygon_dir: str, attributed_merged_po
                     failures.append((expected_out_path, str(exc)))
                 pbar.update(1)
 
-    logging.info(f"success: {len(output_geojsons)}/{len(input_geojsons)}, failures: {len(failures)}/{len(input_geojsons)}")
+    logging.info(f"success: {len(output_geojsons)}/{len(input_geojsons)}, "\ 
+                 f"failures: {len(failures)}/{len(input_geojsons)}")
