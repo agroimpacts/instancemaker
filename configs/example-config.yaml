@@ -26,11 +26,21 @@ log_file: None #logs/instancemaker.log  # log file
 # MergeFields parameters
 # csv file that specifies the tiles to merge, 
 # set to null if all tiles are to be merged
-tile_geojson: data/zambia_tiles.geojson # geojson containing tile layout
+tile_geojson: /home/airg/wanli/Workflow_Zambia/tile_grid/Zambia_tiles.geojson # geojson containing tile layout
 merged_polygon_dir: tmp/merged_polygons/ # directory to save the merged polygons
 merged_parquet_file: tmp/merged_polygons.parquet # output geoparquet
-
+        
 # ComputeInstances parameters
 attributed_merged_polygon_dir: tmp/attributed_merged_polygons/ # directory to save the attributed merged polygons
-attributed_merged_parquet_file: tmp/attributed_merged_polygons.parquet # output geoparquet
+attributed_merged_parquet_file: /home/airg/wanli/Workflow_Zambia/instancemaker_shape_metrics/attributed_merged_polygons_2018.parquet # output geoparquet
 area_crs: "ESRI:102022" # projection CRS for shape metrics
+
+
+# Rasterization parameters
+rasterized_attributed_merged_tiles_dir: /home/airg/wanli/Workflow_Zambia/instancemaker_shape_metrics/rasterize_full_year/rasterize_2018_v2 # output directory
+rasterization_res: 0.000025 # resolution in degrees
+rasterization_nodata: 0.0 # nodata value
+rasterization_all_touched: True # whether to use all touched method
+rasterization_attributes: ["area_ha", "compactness", "shape_index", "interior_edge", "fractal_dim"] # attributes to rasterize
+rasterization_auto_attrs: True # whether to automatically select attributes
+rasterization_attr_exclude: None # attributes to exclude

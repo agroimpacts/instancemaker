@@ -4,7 +4,7 @@ import click
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from instancemaker import MakeInstances, MergeInstances, compute_shape_metrics_parallel
+from instancemaker import MakeInstances, MergeInstances, run_rasterization, compute_shape_metrics_parallel
 from instancemaker.utils import *
 import concurrent.futures
 from functools import partial
@@ -303,5 +303,58 @@ def computeinstances(config, merged_polygon_dir, attributed_merged_polygon_dir,
                                       attributed_merged_parquet_file)
     logging.info("Completed computeinstances command")
 
+
+@cli.command()
+@click.option('--config', default=None, type=str, 
+              help='Path to config file.')
+@click.option('--attributed-merged-parquet-file', default=None, type=str, 
+              help='Output attributed geoparquet filename.')
+@click.option('--tile-geojson', default=None, type=str, 
+              help='Name of tile geojson file.')
+@click.option('--rasterized-attributed-merged-tiles-dir', default=None, type=str, 
+              help='Directory for reading rasterized polygon files.')
+@click.option('--rasterization-res', default=None, type=str, 
+              help='Resolution for rasterization.')
+@click.option('--rasterization-nodata', default=None, type=str, 
+              help='Nodata value for rasterization.')
+@click.option('--rasterization-all-touched', default=None, type=str, 
+              help='Whether to use all touched method.')
+@click.option('--rasterization-attributes', default=None, type=str, 
+              help='Attributes to rasterize.')
+@click.option('--rasterization-auto-attrs', default=None, type=str, 
+              help='Whether to automatically select attributes.')
+@click.option('--rasterization-attr-exclude', default=None, type=str, 
+              help='Attributes to exclude.')
+@click.option('--num-workers', default=None, type=int, 
+              help='Number of workers for parallelized processes.')
+
+def rasterize(config, attributed_merged_parquet_file, tile_geojson, rasterized_attributed_merged_tiles_dir, rasterization_res, rasterization_nodata, rasterization_all_touched, rasterization_attributes, rasterization_auto_attrs, rasterization_attr_exclude, num_workers):
+    """Run Rasterization methods (rasterize attributed merged polygons)."""
+    # Load config file
+    with open(config, "r") as f:
+        config_data = yaml.safe_load(f)
+    
+    attributed_merged_parquet_file = get_config_value(attributed_merged_parquet_file, config_data, 'attributed_merged_parquet_file')
+    tile_geojson = get_config_value(tile_geojson, config_data, 'tile_geojson')
+    rasterized_attributed_merged_tiles_dir = get_config_value(rasterized_attributed_merged_tiles_dir, config_data, 'rasterized_attributed_merged_tiles_dir')
+
+    rasterization_res = get_config_value(rasterization_res, config_data, 'rasterization_res')
+    rasterization_nodata = get_config_value(rasterization_nodata, config_data, 'rasterization_nodata')
+    rasterization_all_touched = get_config_value(rasterization_all_touched, config_data, 'rasterization_all_touched')
+    rasterization_attributes = get_config_value(rasterization_attributes, config_data, 'rasterization_attributes')
+    rasterization_auto_attrs = get_config_value(rasterization_auto_attrs, config_data, 'rasterization_auto_attrs')
+    rasterization_attr_exclude = get_config_value(rasterization_attr_exclude, config_data, 'rasterization_attr_exclude')
+    num_workers = get_config_value(num_workers, config_data, 'num_workers')
+
+    run_rasterization(
+        polygons_path=attributed_merged_parquet_file, 
+        tiles_path=tile_geojson, 
+        out_dir=rasterized_attributed_merged_tiles_dir, 
+        workers=num_workers, 
+        res_deg=rasterization_res, 
+        nodata=rasterization_nodata, 
+        all_touched=rasterization_all_touched, 
+        attributes=rasterization_attributes)
+    
 if __name__ == '__main__':
     cli()
