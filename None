@@ -1,0 +1,114 @@
+2025-08-23 14:02:30,712 [INFO] Running computeinstances command
+2025-08-23 14:02:30,956 [INFO] success: 0/0, failures: 0/0
+2025-08-23 14:03:47,365 [INFO] Running makeinstances command
+2025-08-23 14:03:47,392 [INFO] Processing tiles in serial
+2025-08-23 14:03:47,418 [INFO] Processing tile 884733 (2024,06)
+2025-08-23 14:03:50,574 [INFO] Created 288 records
+2025-08-23 14:03:50,576 [INFO] Finished processing tile 884733
+2025-08-23 14:03:50,576 [INFO] Processing tile 884734 (2024,06)
+2025-08-23 14:03:51,474 [INFO] Created 375 records
+2025-08-23 14:03:51,502 [INFO] Finished processing tile 884734
+2025-08-23 14:03:51,502 [INFO] Processing tile 884735 (2024,06)
+2025-08-23 14:03:52,525 [INFO] Created 873 records
+2025-08-23 14:03:52,529 [INFO] Finished processing tile 884735
+2025-08-23 14:03:52,529 [INFO] Processing tile 884753 (2024,06)
+2025-08-23 14:03:53,600 [INFO] Created 240 records
+2025-08-23 14:03:53,602 [INFO] Finished processing tile 884753
+2025-08-23 14:03:53,602 [INFO] Processing tile 884754 (2024,06)
+2025-08-23 14:03:54,563 [INFO] Created 451 records
+2025-08-23 14:03:54,565 [INFO] Finished processing tile 884754
+2025-08-23 14:03:54,565 [INFO] Processing tile 884755 (2024,06)
+2025-08-23 14:03:55,495 [INFO] Created 659 records
+2025-08-23 14:03:55,498 [INFO] Finished processing tile 884755
+2025-08-23 14:03:55,498 [INFO] Processing tile 884773 (2024,06)
+2025-08-23 14:03:56,577 [INFO] Created 433 records
+2025-08-23 14:03:56,580 [INFO] Finished processing tile 884773
+2025-08-23 14:03:56,580 [INFO] Processing tile 884774 (2024,06)
+2025-08-23 14:03:57,652 [INFO] Created 643 records
+2025-08-23 14:03:57,659 [INFO] Finished processing tile 884774
+2025-08-23 14:03:57,660 [INFO] Processing tile 884775 (2024,06)
+2025-08-23 14:04:00,704 [INFO] Created 481 records
+2025-08-23 14:04:00,706 [INFO] Finished processing tile 884775
+2025-08-23 14:04:00,707 [INFO] Completed makeinstances command
+2025-08-23 14:04:56,447 [INFO] Running mergeinstances command
+2025-08-23 14:04:56,456 [INFO] Initializing MergeInstances
+2025-08-23 14:04:56,456 [INFO] Loading tiles from: /home/airg/wanli/Workflow_Zambia/tile_grid/Zambia_tiles.geojson
+2025-08-23 14:04:57,317 [INFO] Loaded 25740 tiles
+2025-08-23 14:04:58,115 [INFO] Initialized with 9 selected tiles
+2025-08-23 14:04:58,115 [INFO] Creating tile groups
+2025-08-23 14:04:58,131 [INFO] Tile groups created:
+2025-08-23 14:04:58,131 [INFO] Group (1, 1): 1 tiles
+2025-08-23 14:04:58,131 [INFO] Group (2, 1): 1 tiles
+2025-08-23 14:04:58,131 [INFO] Group (0, 1): 1 tiles
+2025-08-23 14:04:58,131 [INFO] Group (1, 0): 2 tiles
+2025-08-23 14:04:58,131 [INFO] Group (2, 0): 2 tiles
+2025-08-23 14:04:58,131 [INFO] Group (0, 0): 2 tiles
+2025-08-23 14:04:58,131 [INFO] Tile grouping completed
+2025-08-23 14:04:58,131 [INFO] Starting tile merging with 2 workers
+2025-08-23 14:04:58,131 [INFO] Cloning polygon files from tmp/polygons to tmp/merged_polygons/
+2025-08-23 14:04:58,152 [INFO] Found 9 GeoJSON files to clone
+2025-08-23 14:04:59,312 [INFO] Polygon file cloning completed
+2025-08-23 14:04:59,312 [INFO] Starting parallel tile processing
+2025-08-23 14:04:59,312 [INFO] Processing color group: (1, 1) with 1 tiles
+2025-08-23 14:05:00,452 [INFO] Created 377 records
+2025-08-23 14:05:00,541 [INFO] Created 855 records
+2025-08-23 14:05:00,617 [INFO] Created 452 records
+2025-08-23 14:05:00,699 [INFO] Created 636 records
+2025-08-23 14:05:00,713 [INFO] Processing color group: (2, 1) with 1 tiles
+2025-08-23 14:05:01,947 [INFO] Created 377 records
+2025-08-23 14:05:02,021 [INFO] Created 856 records
+2025-08-23 14:05:02,080 [INFO] Created 449 records
+2025-08-23 14:05:02,136 [INFO] Created 638 records
+2025-08-23 14:05:02,202 [INFO] Created 643 records
+2025-08-23 14:05:02,261 [INFO] Created 461 records
+2025-08-23 14:05:02,268 [INFO] Processing color group: (0, 1) with 1 tiles
+2025-08-23 14:05:03,128 [INFO] Created 448 records
+2025-08-23 14:05:03,195 [INFO] Created 638 records
+2025-08-23 14:05:03,264 [INFO] Created 644 records
+2025-08-23 14:05:03,314 [INFO] Created 462 records
+2025-08-23 14:05:03,322 [INFO] Processing color group: (1, 0) with 2 tiles
+2025-08-23 14:05:03,841 [INFO] Created 856 records
+2025-08-23 14:05:03,898 [INFO] Created 638 records
+2025-08-23 14:05:04,020 [INFO] Created 286 records
+2025-08-23 14:05:04,070 [INFO] Created 373 records
+2025-08-23 14:05:04,106 [INFO] Created 237 records
+2025-08-23 14:05:04,158 [INFO] Created 441 records
+2025-08-23 14:05:04,163 [INFO] Processing color group: (2, 0) with 2 tiles
+2025-08-23 14:05:04,800 [INFO] Created 856 records
+2025-08-23 14:05:04,854 [INFO] Created 638 records
+2025-08-23 14:05:04,998 [INFO] Created 462 records
+2025-08-23 14:05:05,222 [INFO] Created 286 records
+2025-08-23 14:05:05,269 [INFO] Created 373 records
+2025-08-23 14:05:05,302 [INFO] Created 233 records
+2025-08-23 14:05:05,349 [INFO] Created 441 records
+2025-08-23 14:05:05,406 [INFO] Created 433 records
+2025-08-23 14:05:05,468 [INFO] Created 621 records
+2025-08-23 14:05:05,473 [INFO] Processing color group: (0, 0) with 2 tiles
+2025-08-23 14:05:05,836 [INFO] Created 638 records
+2025-08-23 14:05:05,883 [INFO] Created 462 records
+2025-08-23 14:05:06,135 [INFO] Created 234 records
+2025-08-23 14:05:06,179 [INFO] Created 442 records
+2025-08-23 14:05:06,234 [INFO] Created 433 records
+2025-08-23 14:05:06,296 [INFO] Created 620 records
+2025-08-23 14:05:06,300 [INFO] Tile merging completed
+2025-08-23 14:05:06,300 [INFO] Comparing statistics before and after merging
+2025-08-23 14:05:06,471 [INFO] Number of polygons before merging: 4443
+2025-08-23 14:05:06,677 [INFO] Number of polygons after merging: 4344
+2025-08-23 14:05:06,678 [INFO] Polygon reduction: 99 (2.2%)
+2025-08-23 14:05:07,103 [INFO] Converted 9 files to tmp/merged_polygons.parquet
+2025-08-23 14:05:07,103 [INFO] Total features: 4344
+2025-08-23 14:05:07,105 [INFO] Completed mergeinstances command
+2025-08-23 14:08:31,519 [INFO] Running computeinstances command
+2025-08-23 14:08:31,975 [INFO] Created 462 records
+2025-08-23 14:08:31,994 [INFO] Created 620 records
+2025-08-23 14:08:32,090 [INFO] Created 433 records
+2025-08-23 14:08:32,121 [INFO] Created 442 records
+2025-08-23 14:08:32,279 [INFO] Created 286 records
+2025-08-23 14:08:32,312 [INFO] Created 638 records
+2025-08-23 14:08:32,381 [INFO] Created 234 records
+2025-08-23 14:08:32,393 [INFO] Created 856 records
+2025-08-23 14:08:32,475 [INFO] Created 373 records
+2025-08-23 14:08:32,515 [INFO] success: 9/9, failures: 0/9
+2025-08-23 14:08:33,211 [INFO] Converted 9 files to tmp/attributed_merged_polygons.parquet
+2025-08-23 14:08:33,211 [INFO] Total features: 4344
+2025-08-23 14:08:33,212 [INFO] Completed computeinstances command

@@ -88,6 +88,8 @@ def parse_args():
     ap.add_argument("--polygons", required=True)
     ap.add_argument("--tiles", required=True)
     ap.add_argument("--out-dir", required=True)
+    ap.add_argument("--ids-file")
+    ap.add_argument("--limit", type=int)
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--res", type=float, default=0.000025)
     ap.add_argument("--nodata", type=float, default=0.0)
@@ -99,6 +101,8 @@ def parse_args():
     polygons_path = args.polygons
     tiles_path = args.tiles
     out_dir = args.out_dir
+    ids_file = args.ids_file
+    limit = args.limit
     workers = args.workers
     res_deg = args.res
     nodata = args.nodata
@@ -106,9 +110,9 @@ def parse_args():
     attributes = args.attributes
     auto_attrs = args.auto_attrs
     attr_exclude = args.attr_exclude
-    return polygons_path, tiles_path, out_dir, workers, res_deg, nodata, all_touched, attributes, auto_attrs, attr_exclude
+    return polygons_path, tiles_path, out_dir, ids_file, limit, workers, res_deg, nodata, all_touched, attributes, auto_attrs, attr_exclude
 
-def run_rasterization(polygons_path, tiles_path, out_dir, workers, res_deg, nodata, all_touched, attributes, auto_attrs, attr_exclude):
+def run_rasterization(polygons_path, tiles_path, out_dir, workers, res_deg, nodata, all_touched, attributes):
 
     tiles = gpd.read_file(tiles_path)
     if str(tiles.crs).upper() != "EPSG:4326":
@@ -122,23 +126,9 @@ def run_rasterization(polygons_path, tiles_path, out_dir, workers, res_deg, noda
     if str(gdf_head.crs).upper() != "EPSG:4326":
         gdf_head = gdf_head.to_crs("EPSG:4326")
 
-    # Handle attributes selection
-    if auto_attrs:
-        # Auto-select all numeric columns except geometry and tile
-        numeric_cols = gdf_head.select_dtypes(include=[np.number]).columns.tolist()
-        attrs = [col for col in numeric_cols if col not in ['geometry', FIRST_BAND]]
-        if attr_exclude:
-            exclude_list = [x.strip() for x in attr_exclude.split(',')]
-            attrs = [col for col in attrs if col not in exclude_list]
-    elif attributes:
-        attrs = [x.strip() for x in attributes.split(',')]
-    else:
-        attrs = []
+    attrs = attributes
 
     print(f"[info] Final band order: [{FIRST_BAND}] + {attrs}")
-
-    if tiles.empty:
-        raise SystemExit("No tiles to process.")
 
     all_rows: List[Dict] = [{FIRST_BAND: r[FIRST_BAND], "geometry": r.geometry} for _, r in tiles.iterrows()]
     chunk_size = int(np.ceil(len(all_rows) / CHUNK_COUNT))
@@ -170,8 +160,8 @@ def run_rasterization(polygons_path, tiles_path, out_dir, workers, res_deg, noda
             print(e)
 
 def main():
-    polygons_path, tiles_path, out_dir, workers, res_deg, nodata, all_touched, attributes, auto_attrs, attr_exclude = parse_args()
-    run_rasterization(polygons_path, tiles_path, out_dir, workers, res_deg, nodata, all_touched, attributes, auto_attrs, attr_exclude)
+    polygons_path, tiles_path, out_dir, ids_file, limit, workers, res_deg, nodata, all_touched, attributes, auto_attrs, attr_exclude = parse_args()
+    run_rasterization(polygons_path, tiles_path, out_dir, ids_file, limit, workers, res_deg, nodata, all_touched, attributes, auto_attrs, attr_exclude)
 
 if __name__ == "__main__":
     main()
