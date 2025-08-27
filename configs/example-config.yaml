@@ -1,3 +1,4 @@
+
 # InstanceMaker and Common Parameters
 do_labelling: True  # Label (and optionally erode/dilate) prediction first?
 catalog_file: data/catalog.csv  # name and path to your input csv catalog

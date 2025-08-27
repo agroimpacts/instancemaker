@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 """
 Tile-wise multi-band COG rasterization (with chunked processing).
 Processes large tile sets in manageable batches to avoid memory errors.
@@ -26,6 +27,7 @@ FIRST_BAND = "tile"  # band-1 is always the tile id
 CHUNK_COUNT = 8  # fixed chunk count for stability
 
 
+
 def process_one_tile(
     polygons_path: str,
     tile_row: Dict,
@@ -35,6 +37,7 @@ def process_one_tile(
     all_touched: bool,
     attrs: List[str],
 ) -> str:
+
     try:
         tile_id = tile_row[FIRST_BAND]
         geom = tile_row["geometry"]
@@ -59,6 +62,7 @@ def process_one_tile(
             return str(cog_tif)
 
         band_names = [FIRST_BAND] + attrs
+        
         profile = dict(
             driver="GTiff",
             height=height,
@@ -75,6 +79,7 @@ def process_one_tile(
             predictor=2,
             BIGTIFF="IF_SAFER",
         )
+
 
         gdf = gpd.read_parquet(polygons_path)
         if str(gdf.crs).upper() != "EPSG:4326":
@@ -158,7 +163,6 @@ def parse_args():
     attributes = args.attributes
     auto_attrs = args.auto_attrs
     attr_exclude = args.attr_exclude
-
     return (
         polygons_path,
         tiles_path,
@@ -175,20 +179,18 @@ def parse_args():
     )
 
 
+
 def run_rasterization(
     polygons_path,
     tiles_path,
     out_dir,
-    ids_file,
-    limit,
     workers,
     res_deg,
     nodata,
     all_touched,
     attributes,
-    auto_attrs,
-    attr_exclude,
 ):
+
     tiles = gpd.read_file(tiles_path)
     if str(tiles.crs).upper() != "EPSG:4326":
         tiles = tiles.to_crs("EPSG:4326")
@@ -209,18 +211,26 @@ def run_rasterization(
     attrs = attributes
     print(f"[info] Final band order: [{FIRST_BAND}] + {attrs}")
 
+    
     all_rows: List[Dict] = [
-        {FIRST_BAND: r[FIRST_BAND], "geometry": r.geometry}
-        for _, r in tiles.iterrows()
-    ]
+    {FIRST_BAND: r[FIRST_BAND], "geometry": r.geometry}
+    for _, r in tiles.iterrows()
+]
 
     chunk_size = int(np.ceil(len(all_rows) / CHUNK_COUNT))
+
+    
     n_chunks = len(all_rows) // chunk_size + int(len(all_rows) % chunk_size != 0)
 
     for i in range(n_chunks):
-        chunk = all_rows[i * chunk_size : (i + 1) * chunk_size]
+        start = i * chunk_size
+        end = (i + 1) * chunk_size
+        chunk = all_rows[start:end]
+
         print(f"[chunk {i + 1}] Processing {len(chunk)} tiles...")
-        results: List[str] = []
+        results = []
+
+
 
         with ProcessPoolExecutor(max_workers=workers) as ex:
             futs = [
@@ -247,6 +257,7 @@ def run_rasterization(
                 except Exception as e:  # pragma: no cover
                     results.append(f"[error] {e}")
 
+
         ok = [r for r in results if r and r.endswith(".tif")]
         errs = [r for r in results if not (r and r.endswith(".tif"))]
 
@@ -256,6 +267,7 @@ def run_rasterization(
         )
         for e in errs:
             print(e)
+
 
 
 def main():
