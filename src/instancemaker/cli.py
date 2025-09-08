@@ -329,6 +329,8 @@ def computeinstances(config, merged_polygon_dir, attributed_merged_polygon_dir,
               help='Number of workers for parallelized processes.')
 
 
+
+
 def rasterize(
     config,
     attributed_merged_parquet_file,
@@ -341,6 +343,7 @@ def rasterize(
     rasterization_auto_attrs,
     rasterization_attr_exclude,
     num_workers,
+   
 ):
 
     """Run Rasterization methods (rasterize attributed merged polygons)."""
@@ -409,6 +412,11 @@ def rasterize(
         config_data,
         "num_workers",
     )
+    
+    
+
+
+
 
 
 
@@ -423,7 +431,13 @@ def rasterize(
         res_deg=rasterization_res, 
         nodata=rasterization_nodata, 
         all_touched=rasterization_all_touched, 
-        attributes=rasterization_attributes)
+        attributes=rasterization_attributes,
+        
+        )
+
+   
+
+
     
 if __name__ == '__main__':
     cli()

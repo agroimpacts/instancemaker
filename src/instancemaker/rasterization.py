@@ -23,9 +23,8 @@ from rasterio.enums import Resampling
 from rasterio.shutil import copy as rio_copy
 from tqdm import tqdm
 
-FIRST_BAND = "tile"  # band-1 is always the tile id
-CHUNK_COUNT = 8  # fixed chunk count for stability
-
+FIRST_BAND = "tile"
+CHUNK_COUNT = 10
 
 
 def process_one_tile(
@@ -37,7 +36,6 @@ def process_one_tile(
     all_touched: bool,
     attrs: List[str],
 ) -> str:
-
     try:
         tile_id = tile_row[FIRST_BAND]
         geom = tile_row["geometry"]
@@ -53,16 +51,13 @@ def process_one_tile(
         out_dir_p.mkdir(parents=True, exist_ok=True)
 
         tmp_tif = out_dir_p / f"tile_{tile_id}.tmp.tif"
-        cog_tif = out_dir_p / (
-            f"tile_{tile_id}_{1 + len(attrs)}bands_cog.tif"
-        )
+        cog_tif = out_dir_p / f"tile_{tile_id}_{1 + len(attrs)}bands_cog.tif"
 
         if cog_tif.exists():
-            # Skip existing tile
             return str(cog_tif)
 
         band_names = [FIRST_BAND] + attrs
-        
+
         profile = dict(
             driver="GTiff",
             height=height,
@@ -79,7 +74,6 @@ def process_one_tile(
             predictor=2,
             BIGTIFF="IF_SAFER",
         )
-
 
         gdf = gpd.read_parquet(polygons_path)
         if str(gdf.crs).upper() != "EPSG:4326":
@@ -108,7 +102,6 @@ def process_one_tile(
                         all_touched=all_touched,
                         dtype="float32",
                     )
-
                 dst.write(band, bidx)
                 dst.set_band_description(bidx, col)
 
@@ -148,36 +141,7 @@ def parse_args():
     ap.add_argument("--attributes")
     ap.add_argument("--auto-attrs", action="store_true")
     ap.add_argument("--attr-exclude")
-
-    args = ap.parse_args()
-
-    polygons_path = args.polygons
-    tiles_path = args.tiles
-    out_dir = args.out_dir
-    ids_file = args.ids_file
-    limit = args.limit
-    workers = args.workers
-    res_deg = args.res
-    nodata = args.nodata
-    all_touched = args.all_touched
-    attributes = args.attributes
-    auto_attrs = args.auto_attrs
-    attr_exclude = args.attr_exclude
-    return (
-        polygons_path,
-        tiles_path,
-        out_dir,
-        ids_file,
-        limit,
-        workers,
-        res_deg,
-        nodata,
-        all_touched,
-        attributes,
-        auto_attrs,
-        attr_exclude,
-    )
-
+    return ap.parse_args()
 
 
 def run_rasterization(
@@ -190,20 +154,15 @@ def run_rasterization(
     all_touched,
     attributes,
 ):
-
     tiles = gpd.read_file(tiles_path)
     if str(tiles.crs).upper() != "EPSG:4326":
         tiles = tiles.to_crs("EPSG:4326")
 
     if FIRST_BAND not in tiles.columns:
-        raise SystemExit(
-            f"tiles vector must contain a '{FIRST_BAND}' field."
-        )
-
+        raise SystemExit(f"tiles vector must contain a '{FIRST_BAND}' field.")
     if tiles.empty:
         raise SystemExit("No tiles to process.")
 
-    # Touch CRS of polygons early for logging/validation.
     gdf_head = gpd.read_parquet(polygons_path)
     if str(gdf_head.crs).upper() != "EPSG:4326":
         gdf_head = gdf_head.to_crs("EPSG:4326")
@@ -211,15 +170,11 @@ def run_rasterization(
     attrs = attributes
     print(f"[info] Final band order: [{FIRST_BAND}] + {attrs}")
 
-    
     all_rows: List[Dict] = [
-    {FIRST_BAND: r[FIRST_BAND], "geometry": r.geometry}
-    for _, r in tiles.iterrows()
-]
-
+        {FIRST_BAND: r[FIRST_BAND], "geometry": r.geometry}
+        for _, r in tiles.iterrows()
+    ]
     chunk_size = int(np.ceil(len(all_rows) / CHUNK_COUNT))
-
-    
     n_chunks = len(all_rows) // chunk_size + int(len(all_rows) % chunk_size != 0)
 
     for i in range(n_chunks):
@@ -229,8 +184,6 @@ def run_rasterization(
 
         print(f"[chunk {i + 1}] Processing {len(chunk)} tiles...")
         results = []
-
-
 
         with ProcessPoolExecutor(max_workers=workers) as ex:
             futs = [
@@ -246,59 +199,33 @@ def run_rasterization(
                 )
                 for row in chunk
             ]
-
-            for fut in tqdm(
-                as_completed(futs),
-                total=len(futs),
-                desc=f"Chunk {i + 1}",
-            ):
+            for fut in tqdm(as_completed(futs), total=len(futs), desc=f"Chunk {i + 1}"):
                 try:
                     results.append(fut.result())
-                except Exception as e:  # pragma: no cover
+                except Exception as e:
                     results.append(f"[error] {e}")
-
 
         ok = [r for r in results if r and r.endswith(".tif")]
         errs = [r for r in results if not (r and r.endswith(".tif"))]
 
         print(
-            f"[chunk {i + 1}] Done. {len(ok)} COGs written. "
-            f"Errors: {len(errs)}"
+            f"[chunk {i + 1}] Done. {len(ok)} COGs written. Errors: {len(errs)}"
         )
         for e in errs:
             print(e)
 
 
-
 def main():
-    (
-        polygons_path,
-        tiles_path,
-        out_dir,
-        ids_file,
-        limit,
-        workers,
-        res_deg,
-        nodata,
-        all_touched,
-        attributes,
-        auto_attrs,
-        attr_exclude,
-    ) = parse_args()
-
+    args = parse_args()
     run_rasterization(
-        polygons_path,
-        tiles_path,
-        out_dir,
-        ids_file,
-        limit,
-        workers,
-        res_deg,
-        nodata,
-        all_touched,
-        attributes,
-        auto_attrs,
-        attr_exclude,
+        polygons_path=args.polygons,
+        tiles_path=args.tiles,
+        out_dir=args.out_dir,
+        workers=args.workers,
+        res_deg=args.res,
+        nodata=args.nodata,
+        all_touched=args.all_touched,
+        attributes=args.attributes,
     )
 
 
