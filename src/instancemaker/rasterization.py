@@ -51,18 +51,16 @@ def process_one_tile(
         out_dir_p.mkdir(parents=True, exist_ok=True)
 
         tmp_tif = out_dir_p / f"tile_{tile_id}.tmp.tif"
-        cog_tif = out_dir_p / f"tile_{tile_id}_{1 + len(attrs)}bands_cog.tif"
+        cog_tif = out_dir_p / f"tile_{tile_id}_{len(attrs)}bands_cog.tif"
 
         if cog_tif.exists():
             return str(cog_tif)
-
-        band_names = [FIRST_BAND] + attrs
 
         profile = dict(
             driver="GTiff",
             height=height,
             width=width,
-            count=len(band_names),
+            count=len(attrs),
             dtype="float32",
             crs="EPSG:4326",
             transform=transform,
@@ -75,22 +73,19 @@ def process_one_tile(
             BIGTIFF="IF_SAFER",
         )
 
+        # Read and subset polygons
         gdf = gpd.read_parquet(polygons_path)
         if str(gdf.crs).upper() != "EPSG:4326":
             gdf = gdf.to_crs("EPSG:4326")
         sel = gdf[gdf.intersects(geom)]
 
+        # Write raster with all attribute bands
         with rasterio.open(tmp_tif, "w", **profile) as dst:
-            dst.write(
-                np.full((height, width), float(tile_id), dtype="float32"),
-                1,
-            )
-            dst.set_band_description(1, FIRST_BAND)
-
-            for bidx, col in enumerate(attrs, start=2):
+            for bidx, attr in enumerate(attrs, start=1):
                 band = np.full((height, width), nodata, dtype="float32")
-                if not sel.empty:
-                    values = sel[col].to_numpy()
+
+                if not sel.empty and attr in sel.columns:
+                    values = sel[attr].to_numpy()
                     shapes = [
                         (g, float(v) if np.isfinite(v) else nodata)
                         for g, v in zip(sel.geometry, values)
@@ -102,12 +97,14 @@ def process_one_tile(
                         all_touched=all_touched,
                         dtype="float32",
                     )
+
                 dst.write(band, bidx)
-                dst.set_band_description(bidx, col)
+                dst.set_band_description(bidx, attr)
 
             dst.build_overviews([2, 4, 8, 16], Resampling.nearest)
             dst.update_tags(ns="rio_overview", resampling="nearest")
 
+        # Convert to COG
         rio_copy(
             tmp_tif,
             cog_tif,
@@ -125,6 +122,7 @@ def process_one_tile(
 
     except Exception as e:
         return f"[error] tile {tile_row.get(FIRST_BAND)} -> {e}"
+
 
 
 def parse_args():
