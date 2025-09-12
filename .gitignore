@@ -136,3 +136,4 @@ dmypy.json
 
 *.geojson
 tmp/*
+test_output/

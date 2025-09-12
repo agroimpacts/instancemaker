@@ -2,12 +2,13 @@ from __future__ import annotations
 import math
 from pathlib import Path
 from concurrent.futures import ProcessPoolExecutor, as_completed
-
+from tqdm import tqdm
 import numpy as np
 import geopandas as gpd
 import glob
 from tqdm import tqdm
 import logging
+import re
 
 
 def compute_shape_metrics(gdf: gpd.GeoDataFrame, area_crs: str) -> gpd.GeoDataFrame:
@@ -34,12 +35,32 @@ def compute_shape_metrics(gdf: gpd.GeoDataFrame, area_crs: str) -> gpd.GeoDataFr
 
     return out
 
-def attribute_shape_metrics(in_path: str, out_path: str, area_crs: str) -> None:
+# Each tile's polygons will receive a unique polygon_id based on this multiplier.
+# For example, with MULTIPLIER = 1,000,000:
+# tile_id = 824621, polygon_index = 5 → polygon_id = 824621000005
+MULTIPLIER = 1_000_000
+
+def attribute_shape_metrics(in_path: str,
+                            out_path: str,
+                            area_crs: str) -> tuple[str, None, bool]:
     gdf = gpd.read_file(in_path)
     out = compute_shape_metrics(gdf, area_crs)
-    out['tile_id'] = int(Path(in_path).name[4:10])
+
+    # Extract tile_id from filename like "tile840216_2018-06_polygons.geojson"
+    match = re.search(r"tile(\d{6})_", Path(in_path).stem)
+    if match:
+        tile_id = int(match.group(1))
+    else:
+        raise ValueError(f"Could not extract tile_id from filename: {in_path}")
+
+    out['tile_id'] = tile_id
+    out['polygon_index'] = np.arange(len(out))
+    out['polygon_id'] = tile_id * MULTIPLIER + out['polygon_index']
+    out['polygon_id'] = out['polygon_id'].astype('int64')
     out.to_file(out_path, driver="GeoJSON")
     return (str(out_path), None, True)
+
+
 
 def compute_shape_metrics_parallel(
     merged_polygon_dir: str, 
