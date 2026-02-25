@@ -171,7 +171,9 @@ def makeinstances(config, do_labelling, label_dir, polygon_dir,
         kernel=kernel,
         threshold=threshold,
         erosion_iterations=erosion_iterations,
-        dilation_iterations=dilation_iterations
+        dilation_iterations=dilation_iterations,
+        threshold_type=config_data.get("threshold_type", "score"),
+        class_id=config_data.get("class_id", config_data.get("class_value", 1)),
     )
 
     rows = [row for _, row in catalog.iterrows()]

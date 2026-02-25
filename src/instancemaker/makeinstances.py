@@ -52,7 +52,7 @@ class MakeInstances:
     """
 
     def __init__(self, kernel, threshold=None, erosion_iterations=None, 
-                 dilation_iterations=None):
+                 dilation_iterations=None, threshold_type="score", class_id=1):
         """
         Initialize the MakeInstances with the given parameters.
 
@@ -67,6 +67,9 @@ class MakeInstances:
         dilation_iterations : int, optional
             Number of dilation iterations (default is 3).
         """
+        self.threshold_type = threshold_type
+        self.class_id = class_id
+        
         self.kernel = np.array(kernel)
         self.threshold = threshold
         self.erosion_iterations = erosion_iterations
@@ -173,7 +176,10 @@ class MakeInstances:
         """
 
         # classify score map
-        classified_image = prediction > threshold
+        if self.threshold_type == "class":
+            classified_image = (prediction == self.class_id)
+        else:
+            classified_image = prediction > threshold
 
         if erode_dilate:
             # morphology operations
@@ -228,33 +234,51 @@ class MakeInstances:
         """
         if isinstance(image, str):
             image = rxr.open_rasterio(image, masked=True).squeeze()
-
-        # Use the provided threshold if specified, otherwise use the instance's
-        # threshold
+    
+        # Use provided threshold or default
         threshold = threshold if threshold is not None else self.threshold
-
+    
         if labeled:
-            shapes = features.shapes(image.values, 
-                                     transform=image.rio.transform())
+            shapes = features.shapes(
+                image.values,
+                transform=image.rio.transform()
+            )
             polygons = [shape(geom) for geom, val in shapes if val > 0]
-
+    
         else:
-            mask = image.values > threshold
+            # -------------------------------
+            # CLASS MODE vs SCORE MODE
+            # -------------------------------
+            if self.threshold_type == "class":
+                # Keep only selected class (e.g., interior class 1)
+                mask = image.values == self.class_id
+            else:
+                # Original score threshold behavior
+                mask = image.values > threshold
+    
+            # Morphological refinement (optional)
             if erode_dilate:
-                mask = self.multi_erosion(mask, self.kernel, 
-                                          self.erosion_iterations)
-                mask = self.multi_dilation(mask, self.kernel, 
-                                           self.dilation_iterations)
-            shapes = features.shapes(mask.astype("uint8"), 
-                                     transform=image.rio.transform())
+                mask = self.multi_erosion(
+                    mask, self.kernel, self.erosion_iterations
+                )
+                mask = self.multi_dilation(
+                    mask, self.kernel, self.dilation_iterations
+                )
+    
+            shapes = features.shapes(
+                mask.astype("uint8"),
+                transform=image.rio.transform()
+            )
             polygons = [shape(geom) for geom, val in shapes if val == 1]
-
+    
         gdf = gpd.GeoDataFrame(geometry=polygons, crs=image.rio.crs)
+    
         if simplify:
             gdf["geometry"] = gdf["geometry"].simplify(
-                tolerance=simplify, preserve_topology=True
+                tolerance=simplify,
+                preserve_topology=True
             )
-        
+    
         if polygon_filename:
             gdf.to_file(polygon_filename, driver="GeoJSON")
 
