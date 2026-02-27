@@ -342,12 +342,19 @@ class MergeInstances:
             logging.warning(f"No polygons found for tile {target_tile}")
             return False
 
+    
+        
         # Combine all polygons
-        logging.debug("Combining polygons from adjacent tiles")
-        all_combine = pd.concat(retrieved_polygons, 
-                                ignore_index=True).unary_union
-        polygons = list(all_combine.geoms)
-        logging.debug(f"Combined into {len(polygons)} polygons")
+        all_combine = pd.concat(
+            retrieved_polygons,
+            ignore_index=True
+        ).geometry.union_all()
+        
+        if all_combine.geom_type == "Polygon":
+            polygons = [all_combine]
+        else:
+            polygons = list(all_combine.geoms)
+
 
         # Assign polygons to tiles
         tile_polygons = {tile['tilename']: [] for tile in adjacent_tiles}
