@@ -14,7 +14,17 @@ polygon_dir: tmp/polygons  # output folder for polygonized results
 prediction_filename_template: "tile<tile>_<year>-<date>_class1.tif"
 labeled_filename_template: "tile<tile>_<year>-<date>_labeled.tif"
 polygon_filename_template: "tile<tile>_<year>-<date>_polygons.geojson"
+
+# How to interpret "threshold":
+# - score: threshold a floating probability/score map (e.g. 0.5)
+# - class: threshold a categorical/argmax class map by selecting class_id
+threshold_type: score   # score | class
+
 threshold: 75  # threshold for hardening score maps
+
+# Used when threshold_type=class (categorical predictions)
+class_id: 1
+
 kernel: [[0, 1, 0],  # image morphology filter
         [1, 1, 1],
         [0, 1, 0]]
